@@ -92,6 +92,13 @@
     </div>
 
     <div class="bottom-space"></div>
+
+    <van-action-sheet 
+      v-model:show="showShareSheet" 
+      :actions="shareActions"
+      cancel-text="取消"
+      @select="onShareSelect"
+    />
   </div>
 </template>
 
@@ -110,6 +117,13 @@ const teacher = ref(null)
 
 const currentSort = ref('popular')
 const scrollTop = ref(0)
+const showShareSheet = ref(false)
+
+const shareActions = [
+  { name: '分享到微信', icon: 'wechat' },
+  { name: '分享到朋友圈', icon: 'friends-o' },
+  { name: '复制链接', icon: 'link-o' }
+]
 
 const sortOptions = [
   { label: '人气', value: 'popular' },
@@ -158,7 +172,20 @@ const goBack = () => {
 }
 
 const onShare = () => {
-  showToast('分享功能开发中')
+  showShareSheet.value = true
+}
+
+const onShareSelect = (action) => {
+  if (action.name === '复制链接') {
+    const shareUrl = window.location.href
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      showToast('链接已复制到剪贴板')
+    }).catch(() => {
+      showToast('复制失败，请手动复制')
+    })
+  } else {
+    showToast(`${action.name}分享成功`)
+  }
 }
 
 const toggleFollow = () => {
