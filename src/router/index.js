@@ -106,6 +106,12 @@ const routes = [
     name: 'About',
     component: () => import('@/views/About/index.vue'),
     meta: { title: '关于我们', showTabbar: false }
+  },
+  {
+    path: '/search',
+    name: 'Search',
+    component: () => import('@/views/Search/index.vue'),
+    meta: { title: '搜索', showTabbar: false }
   }
 ]
 

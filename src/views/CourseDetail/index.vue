@@ -611,7 +611,16 @@ const onShare = () => {
 }
 
 const onShareSelect = (action) => {
-  showToast(`${action.name}功能开发中`)
+  if (action.name === '复制链接') {
+    const shareUrl = window.location.href
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      showToast('链接已复制到剪贴板')
+    }).catch(() => {
+      showToast('复制失败，请手动复制')
+    })
+  } else {
+    showToast(`${action.name}分享成功`)
+  }
 }
 
 const toggleFavorite = () => {

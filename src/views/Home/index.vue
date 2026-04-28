@@ -241,7 +241,7 @@ const getCategoryColor = (id) => {
 }
 
 const onSearch = () => {
-  showToast('搜索功能开发中')
+  router.push('/search')
 }
 
 const onNotification = () => {
