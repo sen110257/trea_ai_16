@@ -36,7 +36,7 @@
           
           <div class="course-wrapper">
             <div class="course-cover-wrapper">
-              <van-image :src="getCourseCover(item.courseId)" class="course-cover" lazy-load />
+              <van-image :src="getCourseCover(item.courseId)" class="course-cover" />
               <div class="progress-bar" v-if="item.progress > 0">
                 <van-progress 
                   :percentage="item.progress" 

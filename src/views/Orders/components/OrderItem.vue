@@ -8,7 +8,7 @@
     </div>
     
     <div class="order-content">
-      <van-image :src="order.courseCover" class="course-cover" lazy-load />
+      <van-image :src="order.courseCover" class="course-cover" />
       <div class="course-info">
         <h3 class="course-title">{{ order.courseTitle }}</h3>
         <p class="course-type">{{ order.type === 'column' ? '专栏购买' : '单课购买' }}</p>

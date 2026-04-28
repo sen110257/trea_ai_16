@@ -1,7 +1,7 @@
 <template>
   <div class="course-card card-hover" @click="handleClick">
     <div class="course-image-wrapper">
-      <van-image :src="course.cover" class="course-image" fit="cover" lazy-load />
+      <van-image :src="course.cover" class="course-image" fit="cover" />
       <div class="course-badges">
         <van-tag v-if="course.isFree" class="badge-free" size="mini">免费</van-tag>
         <van-tag v-else-if="course.hasTrial" class="badge-trial" size="mini">试看</van-tag>

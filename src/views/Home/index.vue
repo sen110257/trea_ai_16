@@ -21,7 +21,7 @@
       <van-swipe :autoplay="3000" indicator-color="rgba(255,255,255,0.6)">
         <van-swipe-item v-for="banner in bannerList" :key="banner.id">
           <div class="banner-item" @click="onBannerClick(banner)">
-            <van-image :src="banner.image" fit="cover" class="banner-image" lazy-load />
+            <van-image :src="banner.image" fit="cover" class="banner-image" />
             <div class="banner-content">
               <h3 class="banner-title">{{ banner.title }}</h3>
               <p class="banner-desc">{{ banner.description }}</p>
@@ -62,7 +62,7 @@
           @click="onColumnClick(column)"
         >
           <div class="column-cover">
-            <van-image :src="column.cover" fit="cover" class="cover-image" lazy-load />
+            <van-image :src="column.cover" fit="cover" class="cover-image" />
             <div class="column-tags">
               <van-tag v-for="tag in column.tags" :key="tag" size="mini" type="danger">
                 {{ tag }}

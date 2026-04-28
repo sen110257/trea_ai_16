@@ -88,6 +88,24 @@ const routes = [
     name: 'Settings',
     component: () => import('@/views/Settings/index.vue'),
     meta: { title: '设置', showTabbar: false }
+  },
+  {
+    path: '/help',
+    name: 'Help',
+    component: () => import('@/views/Help/index.vue'),
+    meta: { title: '帮助中心', showTabbar: false }
+  },
+  {
+    path: '/feedback',
+    name: 'Feedback',
+    component: () => import('@/views/Feedback/index.vue'),
+    meta: { title: '意见反馈', showTabbar: false }
+  },
+  {
+    path: '/about',
+    name: 'About',
+    component: () => import('@/views/About/index.vue'),
+    meta: { title: '关于我们', showTabbar: false }
   }
 ]
 

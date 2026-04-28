@@ -45,7 +45,7 @@
             class="course-item card-hover"
             @click="continueLearning(item.course)"
           >
-            <van-image :src="item.course.cover" class="course-cover" lazy-load />
+            <van-image :src="item.course.cover" class="course-cover" />
             <div class="course-info">
               <h3 class="course-title">{{ item.course.title }}</h3>
               <div class="progress-info">
@@ -81,7 +81,7 @@
             class="course-item card-hover"
             @click="reviewCourse(item.course)"
           >
-            <van-image :src="item.course.cover" class="course-cover" lazy-load />
+            <van-image :src="item.course.cover" class="course-cover" />
             <div class="course-info">
               <h3 class="course-title">{{ item.course.title }}</h3>
               <div class="completed-badge">
