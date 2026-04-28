@@ -106,7 +106,7 @@
         <van-cell 
           title="帮助中心" 
           is-link 
-          @click="showToast('功能开发中')"
+          @click="goToHelp"
         >
           <template #icon>
             <van-icon name="question-o" size="20" color="#667eea" />
@@ -115,7 +115,7 @@
         <van-cell 
           title="意见反馈" 
           is-link 
-          @click="showToast('功能开发中')"
+          @click="goToFeedback"
         >
           <template #icon>
             <van-icon name="edit" size="20" color="#667eea" />
@@ -124,7 +124,7 @@
         <van-cell 
           title="关于我们" 
           is-link 
-          @click="showToast('功能开发中')"
+          @click="goToAbout"
         >
           <template #icon>
             <van-icon name="info-o" size="20" color="#667eea" />
@@ -232,6 +232,18 @@ const goToSettings = () => {
     return
   }
   router.push('/settings')
+}
+
+const goToHelp = () => {
+  router.push('/help')
+}
+
+const goToFeedback = () => {
+  router.push('/feedback')
+}
+
+const goToAbout = () => {
+  router.push('/about')
 }
 
 const showLogoutConfirm = () => {

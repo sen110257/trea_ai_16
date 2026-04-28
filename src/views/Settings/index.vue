@@ -91,8 +91,8 @@
           <van-icon name="arrow" size="14" color="#999" />
         </template>
       </van-cell>
-      <van-cell title="关于我们" is-link @click="showToast('功能开发中')" />
-      <van-cell title="意见反馈" is-link @click="showToast('功能开发中')" />
+      <van-cell title="关于我们" is-link @click="goToAbout" />
+      <van-cell title="意见反馈" is-link @click="goToFeedback" />
     </van-cell-group>
 
     <van-cell-group inset v-if="userStore.isLoggedIn">
@@ -185,7 +185,15 @@ const goBack = () => {
 }
 
 const changeAvatar = () => {
-  showToast('头像更换功能开发中')
+  showToast('头像更换功能即将开放')
+}
+
+const goToAbout = () => {
+  router.push('/about')
+}
+
+const goToFeedback = () => {
+  router.push('/feedback')
 }
 
 const showLogoutConfirm = () => {

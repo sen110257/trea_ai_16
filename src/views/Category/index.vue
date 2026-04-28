@@ -294,7 +294,7 @@ const applyFilters = () => {
 }
 
 .category-content {
-  padding-top: 46px;
+  padding-top: 0;
 }
 
 .category-tabs {
@@ -302,33 +302,44 @@ const applyFilters = () => {
   position: sticky;
   top: 46px;
   z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   
   :deep(.van-tabs__nav) {
-    padding: 0 8px;
+    padding: 0 12px;
   }
   
   :deep(.van-tab) {
     font-size: 14px;
     color: #666;
     font-weight: normal;
+    padding: 12px 16px;
+    min-width: auto;
   }
   
   :deep(.van-tab--active) {
     color: var(--primary-color);
     font-weight: 600;
   }
+  
+  :deep(.van-tabs__line) {
+    height: 3px;
+    border-radius: 2px;
+    bottom: 0;
+    background: var(--primary-gradient);
+  }
 }
 
 .filter-bar {
   background: #fff;
-  padding: 12px 16px;
-  border-bottom: 1px solid #f5f5f5;
+  padding: 14px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  margin-top: 0;
 }
 
 .filter-section {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   
   &:last-child {
     margin-bottom: 0;
@@ -337,7 +348,8 @@ const applyFilters = () => {
 
 .filter-label {
   font-size: 13px;
-  color: #666;
+  color: #333;
+  font-weight: 500;
   width: 50px;
   flex-shrink: 0;
 }
@@ -351,14 +363,16 @@ const applyFilters = () => {
 .filter-option {
   font-size: 13px;
   color: #666;
-  padding: 4px 12px;
-  border-radius: 14px;
-  background: #f5f5f5;
+  padding: 6px 14px;
+  border-radius: 16px;
+  background: #f7f7f7;
   transition: all 0.2s;
+  border: 1px solid transparent;
   
   &.active {
     background: rgba(102, 126, 234, 0.1);
     color: var(--primary-color);
+    border-color: var(--primary-color);
   }
 }
 
@@ -368,7 +382,8 @@ const applyFilters = () => {
   justify-content: space-between;
   background: #fff;
   padding: 12px 16px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
 }
 
 .sort-options {
@@ -382,9 +397,11 @@ const applyFilters = () => {
   display: flex;
   align-items: center;
   gap: 4px;
+  padding: 4px 0;
   
   &.active {
     color: var(--primary-color);
+    font-weight: 500;
   }
 }
 
@@ -394,6 +411,9 @@ const applyFilters = () => {
   gap: 4px;
   font-size: 13px;
   color: #666;
+  padding: 4px 10px;
+  background: #f7f7f7;
+  border-radius: 14px;
 }
 
 .course-list {

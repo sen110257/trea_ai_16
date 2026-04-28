@@ -1,387 +1,393 @@
 <template>
   <div class="course-detail-page">
-    <div class="video-section" v-if="currentChapter">
-      <video 
-        ref="videoRef"
-        class="course-video"
-        :src="currentChapter.videoUrl"
-        :poster="course.cover"
-        controls
-        playsinline
-        webkit-playsinline
-        x5-playsinline
-        @timeupdate="onTimeUpdate"
-        @ended="onVideoEnded"
-        @play="onVideoPlay"
-      ></video>
-      <div class="video-overlay" v-if="!canPlay && !isPlaying" @click="handleVideoClick">
-        <div class="play-icon">
-          <van-icon name="play" size="32" color="#fff" />
-        </div>
-        <div class="lock-mask" v-if="!canPlay && !isTrial">
-          <van-icon name="lock" size="24" />
-          <span>购买后可观看</span>
-        </div>
-      </div>
-      <div class="video-info">
-        <div class="chapter-info">
-          <h3 class="chapter-title">{{ currentChapter?.title }}</h3>
-          <span class="video-time">{{ currentTimeText }} / {{ durationText }}</span>
-        </div>
-      </div>
+    <div v-if="!course" class="loading-container">
+      <van-loading size="24">加载中...</van-loading>
     </div>
 
-    <van-nav-bar 
-      v-if="!isFullscreen" 
-      fixed 
-      placeholder
-      :style="navBarStyle"
-    >
-      <template #left>
-        <van-icon name="arrow-left" size="20" @click="goBack" />
-      </template>
-      <template #right>
-        <van-icon name="share-o" size="20" @click="onShare" />
-      </template>
-    </van-nav-bar>
-
-    <div class="course-content" v-if="!isFullscreen">
-      <div class="course-header">
-        <h1 class="course-title">{{ course.title }}</h1>
-        <div class="course-meta">
-          <div class="meta-left">
-            <van-rate v-model="ratingValue" readonly :size="14" />
-            <span class="rating-text">{{ course.rating }}</span>
-            <span class="student-count">{{ formatNumber(course.studentCount) }}人学习</span>
+    <template v-else>
+      <div class="video-section" v-if="currentChapter">
+        <video 
+          ref="videoRef"
+          class="course-video"
+          :src="currentChapter.videoUrl"
+          :poster="course.cover"
+          controls
+          playsinline
+          webkit-playsinline
+          x5-playsinline
+          @timeupdate="onTimeUpdate"
+          @ended="onVideoEnded"
+          @play="onVideoPlay"
+        ></video>
+        <div class="video-overlay" v-if="!canPlay && !isPlaying" @click="handleVideoClick">
+          <div class="play-icon">
+            <van-icon name="play" size="32" color="#fff" />
           </div>
-          <div class="meta-right">
-            <van-icon 
-              :name="isFavorite ? 'star' : 'star-o'" 
-              size="20" 
-              :color="isFavorite ? '#ffc107' : '#999'"
-              @click="toggleFavorite"
-            />
+          <div class="lock-mask" v-if="!canPlay && !isTrial">
+            <van-icon name="lock" size="24" />
+            <span>购买后可观看</span>
+          </div>
+        </div>
+        <div class="video-info">
+          <div class="chapter-info">
+            <h3 class="chapter-title">{{ currentChapter?.title }}</h3>
+            <span class="video-time">{{ currentTimeText }} / {{ durationText }}</span>
           </div>
         </div>
       </div>
 
-      <van-tabs v-model:active="activeTab" color="#667eea">
-        <van-tab title="课程详情">
-          <div class="tab-content">
-            <div class="teacher-card" @click="goToTeacher">
-              <van-image :src="course.teacherAvatar" class="teacher-avatar" round />
-              <div class="teacher-info">
-                <h4 class="teacher-name">{{ course.teacherName }}</h4>
-                <p class="teacher-title">{{ getTeacherTitle() }}</p>
-              </div>
-              <van-button size="small" type="primary" plain @click.stop="toggleFollow">
-                {{ teacher?.isFollowed ? '已关注' : '关注' }}
-              </van-button>
-            </div>
+      <van-nav-bar 
+        v-if="!isFullscreen" 
+        fixed 
+        placeholder
+        :style="navBarStyle"
+      >
+        <template #left>
+          <van-icon name="arrow-left" size="20" @click="goBack" />
+        </template>
+        <template #right>
+          <van-icon name="share-o" size="20" @click="onShare" />
+        </template>
+      </van-nav-bar>
 
-            <div class="intro-section">
-              <h3 class="section-title">课程简介</h3>
-              <p class="intro-text">{{ course.intro }}</p>
+      <div class="course-content" v-if="!isFullscreen">
+        <div class="course-header">
+          <h1 class="course-title">{{ course.title }}</h1>
+          <div class="course-meta">
+            <div class="meta-left">
+              <van-rate v-model="ratingValue" readonly :size="14" />
+              <span class="rating-text">{{ course.rating }}</span>
+              <span class="student-count">{{ formatNumber(course.studentCount) }}人学习</span>
             </div>
-
-            <div class="stats-section">
-              <div class="stat-item">
-                <span class="stat-value">{{ course.chapterCount }}</span>
-                <span class="stat-label">课时</span>
-              </div>
-              <div class="stat-divider"></div>
-              <div class="stat-item">
-                <span class="stat-value">{{ formatDuration(course.duration) }}</span>
-                <span class="stat-label">总时长</span>
-              </div>
-              <div class="stat-divider"></div>
-              <div class="stat-item">
-                <span class="stat-value">{{ course.ratingCount }}</span>
-                <span class="stat-label">评价</span>
-              </div>
+            <div class="meta-right">
+              <van-icon 
+                :name="isFavorite ? 'star' : 'star-o'" 
+                size="20" 
+                :color="isFavorite ? '#ffc107' : '#999'"
+                @click="toggleFavorite"
+              />
             </div>
           </div>
-        </van-tab>
+        </div>
 
-        <van-tab :title="`课程大纲 (${course.chapters?.length || 0})`">
-          <div class="tab-content">
-            <div class="chapter-list">
-              <div 
-                v-for="(chapter, index) in course.chapters" 
-                :key="chapter.id"
-                class="chapter-item"
-                :class="{ active: currentChapter?.id === chapter.id, locked: !canPlayChapter(chapter) }"
-                @click="selectChapter(chapter)"
-              >
-                <div class="chapter-left">
-                  <div class="chapter-number">
+        <van-tabs v-model:active="activeTab" color="#667eea">
+          <van-tab title="课程详情">
+            <div class="tab-content">
+              <div class="teacher-card" @click="goToTeacher">
+                <van-image :src="course.teacherAvatar" class="teacher-avatar" round />
+                <div class="teacher-info">
+                  <h4 class="teacher-name">{{ course.teacherName }}</h4>
+                  <p class="teacher-title">{{ getTeacherTitle() }}</p>
+                </div>
+                <van-button size="small" type="primary" plain @click.stop="toggleFollow">
+                  {{ teacher?.isFollowed ? '已关注' : '关注' }}
+                </van-button>
+              </div>
+
+              <div class="intro-section">
+                <h3 class="section-title">课程简介</h3>
+                <p class="intro-text">{{ course.intro }}</p>
+              </div>
+
+              <div class="stats-section">
+                <div class="stat-item">
+                  <span class="stat-value">{{ course.chapterCount }}</span>
+                  <span class="stat-label">课时</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                  <span class="stat-value">{{ formatDuration(course.duration) }}</span>
+                  <span class="stat-label">总时长</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                  <span class="stat-value">{{ course.ratingCount }}</span>
+                  <span class="stat-label">评价</span>
+                </div>
+              </div>
+            </div>
+          </van-tab>
+
+          <van-tab :title="`课程大纲 (${course.chapters?.length || 0})`">
+            <div class="tab-content">
+              <div class="chapter-list">
+                <div 
+                  v-for="(chapter, index) in course.chapters" 
+                  :key="chapter.id"
+                  class="chapter-item"
+                  :class="{ active: currentChapter?.id === chapter.id, locked: !canPlayChapter(chapter) }"
+                  @click="selectChapter(chapter)"
+                >
+                  <div class="chapter-left">
+                    <div class="chapter-number">
+                      <van-icon 
+                        v-if="currentChapter?.id === chapter.id && isPlaying" 
+                        name="volume-o" 
+                        size="18" 
+                        color="#667eea"
+                      />
+                      <span v-else class="number-text">{{ index + 1 }}</span>
+                    </div>
+                    <div class="chapter-info">
+                      <h4 class="chapter-title">{{ chapter.title }}</h4>
+                      <div class="chapter-meta">
+                        <span class="duration">{{ formatDuration(chapter.duration) }}</span>
+                        <van-tag 
+                          v-if="chapter.isTrial" 
+                          type="primary" 
+                          size="mini"
+                        >
+                          试看
+                        </van-tag>
+                        <van-tag 
+                          v-else-if="chapter.isFree" 
+                          type="success" 
+                          size="mini"
+                        >
+                          免费
+                        </van-tag>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="chapter-right">
                     <van-icon 
-                      v-if="currentChapter?.id === chapter.id && isPlaying" 
-                      name="volume-o" 
-                      size="18" 
+                      v-if="canPlayChapter(chapter)" 
+                      name="play-circle-o" 
+                      size="22" 
                       color="#667eea"
                     />
-                    <span v-else class="number-text">{{ index + 1 }}</span>
+                    <van-icon v-else name="lock" size="20" color="#ccc" />
                   </div>
-                  <div class="chapter-info">
-                    <h4 class="chapter-title">{{ chapter.title }}</h4>
-                    <div class="chapter-meta">
-                      <span class="duration">{{ formatDuration(chapter.duration) }}</span>
-                      <van-tag 
-                        v-if="chapter.isTrial" 
-                        type="primary" 
-                        size="mini"
-                      >
-                        试看
-                      </van-tag>
-                      <van-tag 
-                        v-else-if="chapter.isFree" 
-                        type="success" 
-                        size="mini"
-                      >
-                        免费
-                      </van-tag>
-                    </div>
-                  </div>
-                </div>
-                <div class="chapter-right">
-                  <van-icon 
-                    v-if="canPlayChapter(chapter)" 
-                    name="play-circle-o" 
-                    size="22" 
-                    color="#667eea"
-                  />
-                  <van-icon v-else name="lock" size="20" color="#ccc" />
-                </div>
-                <div v-if="getChapterProgress(chapter.id) > 0" class="progress-bar">
-                  <van-progress 
-                    :percentage="getChapterProgress(chapter.id)" 
-                    :stroke-width="2"
-                    color="#667eea"
-                    pivot-text=""
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </van-tab>
-
-        <van-tab :title="`评价 (${course.ratingCount})`">
-          <div class="tab-content">
-            <div class="rating-summary">
-              <div class="rating-score">
-                <span class="score">{{ course.rating }}</span>
-                <span class="max-score">/ 5.0</span>
-              </div>
-              <div class="rating-detail">
-                <van-rate v-model="ratingValue" readonly :size="18" />
-                <span class="count">共 {{ course.ratingCount }} 人评价</span>
-              </div>
-            </div>
-
-            <div class="comments-list">
-              <div 
-                v-for="comment in courseComments" 
-                :key="comment.id" 
-                class="comment-item"
-              >
-                <div class="comment-header">
-                  <van-image :src="comment.userAvatar" class="user-avatar" round />
-                  <div class="user-info">
-                    <h4 class="user-name">{{ comment.userName }}</h4>
-                    <div class="comment-meta">
-                      <van-rate v-model="comment.rating" readonly :size="12" />
-                      <span class="comment-date">{{ comment.createdAt }}</span>
-                    </div>
-                  </div>
-                </div>
-                <p class="comment-content">{{ comment.content }}</p>
-                <div class="comment-actions">
-                  <div class="like-action" @click="toggleLike(comment)">
-                    <van-icon 
-                      :name="comment.isLiked ? 'good-job' : 'good-job-o'" 
-                      size="16"
-                      :color="comment.isLiked ? '#667eea' : '#999'"
+                  <div v-if="getChapterProgress(chapter.id) > 0" class="progress-bar">
+                    <van-progress 
+                      :percentage="getChapterProgress(chapter.id)" 
+                      :stroke-width="2"
+                      color="#667eea"
+                      pivot-text=""
                     />
-                    <span>{{ comment.likeCount }}</span>
                   </div>
                 </div>
               </div>
             </div>
+          </van-tab>
 
-            <div class="view-all-comments" @click="viewAllComments">
-              查看全部评价
-              <van-icon name="arrow" size="12" />
+          <van-tab :title="`评价 (${course.ratingCount})`">
+            <div class="tab-content">
+              <div class="rating-summary">
+                <div class="rating-score">
+                  <span class="score">{{ course.rating }}</span>
+                  <span class="max-score">/ 5.0</span>
+                </div>
+                <div class="rating-detail">
+                  <van-rate v-model="ratingValue" readonly :size="18" />
+                  <span class="count">共 {{ course.ratingCount }} 人评价</span>
+                </div>
+              </div>
+
+              <div class="comments-list">
+                <div 
+                  v-for="comment in courseComments" 
+                  :key="comment.id" 
+                  class="comment-item"
+                >
+                  <div class="comment-header">
+                    <van-image :src="comment.userAvatar" class="user-avatar" round />
+                    <div class="user-info">
+                      <h4 class="user-name">{{ comment.userName }}</h4>
+                      <div class="comment-meta">
+                        <van-rate v-model="comment.rating" readonly :size="12" />
+                        <span class="comment-date">{{ comment.createdAt }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="comment-content">{{ comment.content }}</p>
+                  <div class="comment-actions">
+                    <div class="like-action" @click="toggleLike(comment)">
+                      <van-icon 
+                        :name="comment.isLiked ? 'good-job' : 'good-job-o'" 
+                        size="16"
+                        :color="comment.isLiked ? '#667eea' : '#999'"
+                      />
+                      <span>{{ comment.likeCount }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="view-all-comments" @click="viewAllComments">
+                查看全部评价
+                <van-icon name="arrow" size="12" />
+              </div>
             </div>
-          </div>
-        </van-tab>
-      </van-tabs>
-    </div>
-
-    <div class="bottom-bar" v-if="!isFullscreen">
-      <div class="bar-left">
-        <div v-if="!hasPurchased && course.price > 0" class="price-info">
-          <span v-if="course.isFree" class="free-text">免费</span>
-          <span v-else class="price">
-            <span class="price-symbol">¥</span>
-            <span class="price-value">{{ course.price }}</span>
-          </span>
-          <span v-if="course.originalPrice > course.price" class="original-price">
-            ¥{{ course.originalPrice }}
-          </span>
-        </div>
-        <div v-else class="purchased-info">
-          <van-icon name="checked" size="16" color="#52c41a" />
-          <span>已购买</span>
-        </div>
+          </van-tab>
+        </van-tabs>
       </div>
-      <div class="bar-right">
-        <van-button 
-          v-if="!hasPurchased && course.price > 0" 
-          type="primary" 
-          size="large"
-          class="buy-btn"
-          @click="showBuyPopup = true"
-        >
-          立即购买
-        </van-button>
-        <van-button 
-          v-else-if="!hasPurchased && !course.isFree && currentChapter"
-          type="primary" 
-          size="large"
-          class="buy-btn"
-          @click="showBuyPopup = true"
-        >
-          购买解锁全部
-        </van-button>
-        <van-button 
-          v-else
-          type="primary" 
-          size="large"
-          class="continue-btn"
-          @click="continueLearning"
-        >
-          继续学习
-        </van-button>
-      </div>
-    </div>
 
-    <van-popup 
-      v-model:show="showBuyPopup" 
-      position="bottom"
-      :style="{ paddingBottom: 'env(safe-area-inset-bottom)' }"
-      round
-    >
-      <div class="buy-popup">
-        <div class="popup-header">
-          <h3 class="popup-title">购买课程</h3>
-          <van-icon name="cross" size="20" @click="showBuyPopup = false" />
-        </div>
-        
-        <div class="course-preview">
-          <van-image :src="course.cover" class="preview-cover" />
-          <div class="preview-info">
-            <h4 class="preview-title">{{ course.title }}</h4>
-            <p class="preview-teacher">讲师：{{ course.teacherName }}</p>
-          </div>
-        </div>
-
-        <div class="buy-options">
-          <div 
-            class="buy-option"
-            :class="{ active: buyType === 'single' }"
-            @click="buyType = 'single'"
-          >
-            <div class="option-info">
-              <span class="option-title">单课购买</span>
-              <span class="option-desc">购买当前课程</span>
-            </div>
-            <div class="option-price">
+      <div class="bottom-bar" v-if="!isFullscreen">
+        <div class="bar-left">
+          <div v-if="!hasPurchased && course.price > 0" class="price-info">
+            <span v-if="course.isFree" class="free-text">免费</span>
+            <span v-else class="price">
               <span class="price-symbol">¥</span>
               <span class="price-value">{{ course.price }}</span>
-            </div>
-          </div>
-          <div 
-            v-if="course.columnId"
-            class="buy-option"
-            :class="{ active: buyType === 'column' }"
-            @click="buyType = 'column'"
-          >
-            <div class="option-info">
-              <span class="option-title">专栏打包</span>
-              <span class="option-desc">更优惠，享全部专栏内容</span>
-            </div>
-            <div class="option-price">
-              <span class="price-symbol">¥</span>
-              <span class="price-value">{{ getColumnPrice() }}</span>
-              <span class="original-tag">专栏价</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="pay-methods">
-          <h4 class="pay-title">选择支付方式</h4>
-          <div class="pay-options">
-            <div 
-              class="pay-option"
-              :class="{ active: payMethod === 'wechat' }"
-              @click="payMethod = 'wechat'"
-            >
-              <div class="pay-left">
-                <div class="pay-icon wechat">
-                  <van-icon name="wechat" size="20" />
-                </div>
-                <span class="pay-name">微信支付</span>
-              </div>
-              <van-radio :checked="payMethod === 'wechat'" />
-            </div>
-            <div 
-              class="pay-option"
-              :class="{ active: payMethod === 'alipay' }"
-              @click="payMethod = 'alipay'"
-            >
-              <div class="pay-left">
-                <div class="pay-icon alipay">
-                  <van-icon name="apps-o" size="20" />
-                </div>
-                <span class="pay-name">支付宝</span>
-              </div>
-              <van-radio :checked="payMethod === 'alipay'" />
-            </div>
-          </div>
-        </div>
-
-        <div class="buy-footer">
-          <div class="total-price">
-            <span class="total-label">实付金额：</span>
-            <span class="total-value">
-              <span class="price-symbol">¥</span>
-              <span class="price-amount">{{ getTotalPrice() }}</span>
+            </span>
+            <span v-if="course.originalPrice > course.price" class="original-price">
+              ¥{{ course.originalPrice }}
             </span>
           </div>
+          <div v-else class="purchased-info">
+            <van-icon name="checked" size="16" color="#52c41a" />
+            <span>已购买</span>
+          </div>
+        </div>
+        <div class="bar-right">
           <van-button 
+            v-if="!hasPurchased && course.price > 0" 
             type="primary" 
             size="large"
-            class="confirm-btn"
-            @click="handlePay"
+            class="buy-btn"
+            @click="showBuyPopup = true"
           >
-            立即支付
+            立即购买
+          </van-button>
+          <van-button 
+            v-else-if="!hasPurchased && !course.isFree && currentChapter"
+            type="primary" 
+            size="large"
+            class="buy-btn"
+            @click="showBuyPopup = true"
+          >
+            购买解锁全部
+          </van-button>
+          <van-button 
+            v-else
+            type="primary" 
+            size="large"
+            class="continue-btn"
+            @click="continueLearning"
+          >
+            继续学习
           </van-button>
         </div>
       </div>
-    </van-popup>
 
-    <van-action-sheet 
-      v-model:show="showShareSheet" 
-      :actions="shareActions"
-      cancel-text="取消"
-      @select="onShareSelect"
-    />
+      <van-popup 
+        v-model:show="showBuyPopup" 
+        position="bottom"
+        :style="{ paddingBottom: 'env(safe-area-inset-bottom)' }"
+        round
+      >
+        <div class="buy-popup">
+          <div class="popup-header">
+            <h3 class="popup-title">购买课程</h3>
+            <van-icon name="cross" size="20" @click="showBuyPopup = false" />
+          </div>
+          
+          <div class="course-preview">
+            <van-image :src="course.cover" class="preview-cover" />
+            <div class="preview-info">
+              <h4 class="preview-title">{{ course.title }}</h4>
+              <p class="preview-teacher">讲师：{{ course.teacherName }}</p>
+            </div>
+          </div>
+
+          <div class="buy-options">
+            <div 
+              class="buy-option"
+              :class="{ active: buyType === 'single' }"
+              @click="buyType = 'single'"
+            >
+              <div class="option-info">
+                <span class="option-title">单课购买</span>
+                <span class="option-desc">购买当前课程</span>
+              </div>
+              <div class="option-price">
+                <span class="price-symbol">¥</span>
+                <span class="price-value">{{ course.price }}</span>
+              </div>
+            </div>
+            <div 
+              v-if="course.columnId"
+              class="buy-option"
+              :class="{ active: buyType === 'column' }"
+              @click="buyType = 'column'"
+            >
+              <div class="option-info">
+                <span class="option-title">专栏打包</span>
+                <span class="option-desc">更优惠，享全部专栏内容</span>
+              </div>
+              <div class="option-price">
+                <span class="price-symbol">¥</span>
+                <span class="price-value">{{ getColumnPrice() }}</span>
+                <span class="original-tag">专栏价</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pay-methods">
+            <h4 class="pay-title">选择支付方式</h4>
+            <div class="pay-options">
+              <div 
+                class="pay-option"
+                :class="{ active: payMethod === 'wechat' }"
+                @click="payMethod = 'wechat'"
+              >
+                <div class="pay-left">
+                  <div class="pay-icon wechat">
+                    <van-icon name="wechat" size="20" />
+                  </div>
+                  <span class="pay-name">微信支付</span>
+                </div>
+                <van-radio :checked="payMethod === 'wechat'" />
+              </div>
+              <div 
+                class="pay-option"
+                :class="{ active: payMethod === 'alipay' }"
+                @click="payMethod = 'alipay'"
+              >
+                <div class="pay-left">
+                  <div class="pay-icon alipay">
+                    <van-icon name="apps-o" size="20" />
+                  </div>
+                  <span class="pay-name">支付宝</span>
+                </div>
+                <van-radio :checked="payMethod === 'alipay'" />
+              </div>
+            </div>
+          </div>
+
+          <div class="buy-footer">
+            <div class="total-price">
+              <span class="total-label">实付金额：</span>
+              <span class="total-value">
+                <span class="price-symbol">¥</span>
+                <span class="price-amount">{{ getTotalPrice() }}</span>
+              </span>
+            </div>
+            <van-button 
+              type="primary" 
+              size="large"
+              class="confirm-btn"
+              @click="handlePay"
+            >
+              立即支付
+            </van-button>
+          </div>
+        </div>
+      </van-popup>
+
+      <van-action-sheet 
+        v-model:show="showShareSheet" 
+        :actions="shareActions"
+        cancel-text="取消"
+        @select="onShareSelect"
+      />
+    </template>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/store'
 import { getCourseById, getTeacherById, getCommentsByCourseId, columns, formatDuration, formatNumber } from '@/data/mockData'
@@ -409,7 +415,10 @@ const showShareSheet = ref(false)
 const buyType = ref('single')
 const payMethod = ref('wechat')
 
-const ratingValue = computed(() => Math.round(course.value?.rating || 0))
+const ratingValue = computed(() => {
+  if (!course.value) return 0
+  return Math.round(course.value.rating || 0)
+})
 
 const hasPurchased = computed(() => {
   if (!userStore.isLoggedIn) return false
@@ -429,8 +438,15 @@ const canPlay = computed(() => {
   return currentChapter.value.isTrial
 })
 
-const currentTimeText = computed(() => formatDuration(Math.floor(currentTime.value)))
-const durationText = computed(() => formatDuration(Math.floor(duration.value)))
+const currentTimeText = computed(() => {
+  if (!currentTime.value) return '00:00'
+  return formatDuration(Math.floor(currentTime.value))
+})
+
+const durationText = computed(() => {
+  if (!duration.value) return '00:00'
+  return formatDuration(Math.floor(duration.value))
+})
 
 const navBarStyle = computed(() => ({
   background: isPlaying.value ? 'transparent' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -446,6 +462,7 @@ const shareActions = [
 ]
 
 const canPlayChapter = (chapter) => {
+  if (!chapter) return false
   if (hasPurchased.value || chapter.isFree) return true
   return chapter.isTrial
 }
@@ -455,7 +472,8 @@ const getTeacherTitle = () => {
 }
 
 const getColumnPrice = () => {
-  const column = columns.find(c => c.id === course.value?.columnId)
+  if (!course.value) return 0
+  const column = columns.find(c => c.id === course.value.columnId)
   return column?.price || course.value?.price || 0
 }
 
@@ -475,17 +493,19 @@ const getChapterProgress = (chapterId) => {
 }
 
 const loadCourseData = () => {
-  course.value = getCourseById(courseId.value)
+  const id = courseId.value
+  course.value = getCourseById(id)
+  
   if (course.value) {
     teacher.value = getTeacherById(course.value.teacherId)
-    courseComments.value = getCommentsByCourseId(courseId.value)
+    courseComments.value = getCommentsByCourseId(id)
     
-    const savedProgress = userStore.getLearningProgress(courseId.value)
+    const savedProgress = userStore.getLearningProgress(id)
     if (savedProgress?.lastChapterId) {
       currentChapter.value = course.value.chapters.find(c => c.id === savedProgress.lastChapterId)
     }
-    if (!currentChapter.value) {
-      currentChapter.value = course.value.chapters?.[0]
+    if (!currentChapter.value && course.value.chapters && course.value.chapters.length > 0) {
+      currentChapter.value = course.value.chapters[0]
     }
   }
 }
@@ -500,16 +520,19 @@ const selectChapter = (chapter) => {
     showBuyPopup.value = true
     return
   }
+  
   currentChapter.value = chapter
   currentTime.value = 0
   
-  if (videoRef.value) {
-    const savedProgress = userStore.getLearningProgress(courseId.value)
-    if (savedProgress?.chapters?.[chapter.id]) {
-      videoRef.value.currentTime = savedProgress.chapters[chapter.id].currentTime || 0
+  nextTick(() => {
+    if (videoRef.value) {
+      const savedProgress = userStore.getLearningProgress(courseId.value)
+      if (savedProgress?.chapters?.[chapter.id]) {
+        videoRef.value.currentTime = savedProgress.chapters[chapter.id].currentTime || 0
+      }
+      videoRef.value.play().catch(() => {})
     }
-    videoRef.value.play().catch(() => {})
-  }
+  })
   
   userStore.addHistory(courseId.value, chapter.id)
 }
@@ -534,7 +557,7 @@ const onTimeUpdate = () => {
   if (videoRef.value) {
     currentTime.value = videoRef.value.currentTime
     
-    const progress = (currentTime.value / duration.value) * 100
+    const progress = duration.value > 0 ? (currentTime.value / duration.value) * 100 : 0
     if (currentChapter.value && !isNaN(progress)) {
       userStore.updateLearningProgress(
         courseId.value, 
@@ -549,7 +572,7 @@ const onTimeUpdate = () => {
 const onVideoEnded = () => {
   isPlaying.value = false
   
-  if (course.value && currentChapter.value) {
+  if (course.value && currentChapter.value && course.value.chapters) {
     const currentIndex = course.value.chapters.findIndex(c => c.id === currentChapter.value.id)
     if (currentIndex < course.value.chapters.length - 1) {
       const nextChapter = course.value.chapters[currentIndex + 1]
@@ -639,8 +662,10 @@ const handlePay = () => {
   setTimeout(() => {
     closeToast()
     
-    const order = userStore.createOrder(course.value, buyType.value)
-    userStore.payOrder(order.id)
+    if (course.value) {
+      const order = userStore.createOrder(course.value, buyType.value)
+      userStore.payOrder(order.id)
+    }
     
     showBuyPopup.value = false
     showToast('支付成功')
@@ -664,6 +689,8 @@ onMounted(() => {
 watch(
   () => route.params.id,
   () => {
+    course.value = null
+    currentChapter.value = null
     loadCourseData()
   }
 )
@@ -673,6 +700,13 @@ watch(
 .course-detail-page {
   min-height: 100vh;
   background: #f5f7fa;
+}
+
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
 }
 
 .video-section {
@@ -761,7 +795,7 @@ watch(
 
 .course-header {
   padding: 16px;
-  border-bottom: 8px solid #f5f7fa;
+  border-bottom: 8px solid #f5f5f5;
 }
 
 .course-title {
@@ -890,6 +924,7 @@ watch(
   flex-direction: column;
   padding: 14px 0;
   border-bottom: 1px solid #f5f5f5;
+  position: relative;
   
   &:last-child {
     border-bottom: none;
@@ -902,7 +937,7 @@ watch(
     border-bottom: none;
     margin-bottom: 1px;
     
-    &::after {
+    &::before {
       content: '';
       position: absolute;
       left: 0;

@@ -15,7 +15,7 @@
           class="course-item card-hover"
           @click="goToCourse(course)"
         >
-          <van-image :src="course.cover" class="course-cover" lazy-load />
+          <van-image :src="course.cover" class="course-cover" />
           <div class="course-info">
             <h3 class="course-title">{{ course.title }}</h3>
             <div class="course-meta">

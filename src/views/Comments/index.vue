@@ -54,7 +54,6 @@
             :key="index"
             :src="img"
             class="comment-image"
-            lazy-load
           />
         </div>
         <div class="comment-actions">
